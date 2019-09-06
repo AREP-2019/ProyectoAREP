@@ -169,7 +169,7 @@ public class Server {
     private static void serveImage(String path,OutputStream outputStream,String ext) throws IOException {
         PrintWriter response = new PrintWriter(outputStream, true);
         try{
-            response.println("HTTP/1.1 200 OK");
+            response.println("HTTP/1.1 200 OK\r\n");
             response.println("Content-Type: image/"+ext+"\r\n");
             BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/"+path));
             ImageIO.write(image, ext, outputStream);
