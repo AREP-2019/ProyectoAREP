@@ -168,21 +168,41 @@ public class Server {
     }
 
     private static void serveImage(String path,OutputStream outputStream,String ext) throws IOException {
-        PrintWriter response = new PrintWriter(outputStream, true);
+        DataOutputStream response = new DataOutputStream(outputStream);
+        PrintWriter responseWriter = new PrintWriter(outputStream, true);
         try{
-            response.println("HTTP/1.1 200 OK");
-            response.println("Content-Type: image/"+ext+"\r\n");
+            response.writeBytes("HTTP/1.1 200 OK");
+            response.writeBytes("Content-Type: image/"+ext+"\r\n");
             BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/"+path));
-
-            ImageIO.write(image, ext, new MemoryCacheImageOutputStream(outputStream));
-            response.flush();
-            response.close();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", byteArrayOutputStream);
+            byte[] bytes = byteArrayOutputStream.toByteArray();
+            response.writeBytes("Content-Length: "+bytes.length+"\r\n\r\n");
+            response.write(bytes);
+            responseWriter.println(response.toString());
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
             BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/imagenes/error.png"));
-            ImageIO.write(image, ext, outputStream);
-            response.flush();
-            response.close();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", byteArrayOutputStream);
+            byte[] bytes = byteArrayOutputStream.toByteArray();
+            response.writeBytes("Content-Length: "+bytes.length+"\r\n\r\n");
+            response.write(bytes);
+            responseWriter.println(response.toString());
         }
+    }
+
+    private DataOutputStream getImageLikeBytes(OutputStream outputStream, BufferedImage image) throws IOException {
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", byteArrayOutputStream);
+        byte[] imageByte = byteArrayOutputStream.toByteArray();
+        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+        dataOutputStream.writeBytes("HTTP/1.1 200 OK\r\n"+"Content-Type: image/png\r\n");
+        dataOutputStream.writeBytes("Content-Length: "+ imageByte.length);
+        dataOutputStream.writeBytes("\r\n\r\n");
+        dataOutputStream.write(imageByte);
+        dataOutputStream.close();
+        return dataOutputStream;
     }
 
 
