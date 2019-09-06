@@ -55,6 +55,7 @@ public class Server {
         if(path!=null) {
             serve(path, out);
         }
+
     }
 
     private static void serve(String path, OutputStream out) {
@@ -142,6 +143,8 @@ public class Server {
             response.println("Connection: close");
             response.println();
             response.println(htmlString);
+            response.flush();
+            response.close();
 
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
             notFound(out);
@@ -164,21 +167,27 @@ public class Server {
             response.println("Connection: close");
             response.println();
             response.println(htmlString);
+            response.flush();
+            response.close();
         } catch (FileNotFoundException | UnsupportedEncodingException ex) {
             ex.printStackTrace();
         }
     }
 
     private static void serveImage(String path,OutputStream outputStream,String ext) throws IOException {
+        PrintWriter response = new PrintWriter(outputStream, true);
         try{
-            PrintWriter response = new PrintWriter(outputStream, true);
             response.println("HTTP/1.1 200 OK");
             response.println("Content-Type: image/"+ext+"\r\n");
             BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/"+path));
             ImageIO.write(image, ext, outputStream);
+            response.flush();
+            response.close();
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
             BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/imagenes/error.png"));
             ImageIO.write(image, ext, outputStream);
+            response.flush();
+            response.close();
         }
     }
 
