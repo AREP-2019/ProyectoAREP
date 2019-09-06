@@ -191,21 +191,6 @@ public class Server {
         }
     }
 
-    private DataOutputStream getImageLikeBytes(OutputStream outputStream, BufferedImage image) throws IOException {
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", byteArrayOutputStream);
-        byte[] imageByte = byteArrayOutputStream.toByteArray();
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-        dataOutputStream.writeBytes("HTTP/1.1 200 OK\r\n"+"Content-Type: image/png\r\n");
-        dataOutputStream.writeBytes("Content-Length: "+ imageByte.length);
-        dataOutputStream.writeBytes("\r\n\r\n");
-        dataOutputStream.write(imageByte);
-        dataOutputStream.close();
-        return dataOutputStream;
-    }
-
-
     static int getPort() {
         if (System.getenv("PORT") != null) {
             return Integer.parseInt(System.getenv("PORT"));
