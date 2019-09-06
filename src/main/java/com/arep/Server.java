@@ -72,7 +72,7 @@ public class Server {
                 e.printStackTrace();
             }
         }
-        else if(splited[1].equals("apps")){
+        else if(splited.length>1 &&splited[1].equals("apps")){
             serveApp(splited,out);
         }
         else{
