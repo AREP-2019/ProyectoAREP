@@ -14,9 +14,9 @@ This project was implemented through HTTP so it can server images, and html reso
 
 Example1:[Link](https://proyecto-arep.herokuapp.com/apps/Playa/write/this_is_a_test)
 
-Expample2:[Link](https://proyecto-arep.herokuapp.com/Playa/sum/4451&7541)
+Expample2:[Link](https://proyecto-arep.herokuapp.com/apps/Playa/sum/4451&7541)
 
-Example3:[Link](https://proyecto-arep.herokuapp.com/Playa/playa)
+Example3:[Link](https://proyecto-arep.herokuapp.com/apps/Playa/playa)
 
 # Deployment
 
