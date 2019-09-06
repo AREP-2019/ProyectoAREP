@@ -2,20 +2,20 @@ package com.arep;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 public class Server {
 
-    private static ArrayList<String> imgext = new ArrayList<>(Arrays.asList("jpg","png","img"));
+    private static ArrayList<String> imgext = new ArrayList<>(Arrays.asList("jpg","png","img","gif"));
     private static ServerSocket serverSocket = null;
     private static Socket clientSocket = null;
+
+
     public static void main(String[] args) throws IOException {
         while (true) {
 
@@ -46,7 +46,7 @@ public class Server {
         String line = null;
         String path = null;
         while((line=bf.readLine())!=null) {
-            System.out.println(line);
+            //System.out.println(line);
             if (!bf.ready()) break;
             if (line.contains("GET")) {
                 String [] splitedLine = line.split(" ");
@@ -60,6 +60,7 @@ public class Server {
 
     private static void serve(String path, OutputStream out) {
         String ext = null;
+        String [] splited =path.split("/");
         if (path.length() > 3)
         {
             ext = path.substring(path.length() - 3);
@@ -71,9 +72,59 @@ public class Server {
                 e.printStackTrace();
             }
         }
+        else if(splited[1].equals("apps")){
+            serveApp(splited,out);
+        }
         else{
             serveHtml(path, out);
 
+        }
+    }
+
+    private static void serveApp(String[] path, OutputStream out) {
+        try {
+            Class clase = Class.forName("com.arep.apps."+path[2]);
+            Boolean params = true;
+            String response = null;
+            String[] splited = null;
+            try {
+                if(path.length==5){
+                    splited = path[4].split("&");
+                }
+                else {
+                    params=false;
+                }
+                ArrayList<Method> metodos=new ArrayList<>(Arrays.asList(clase.getMethods()));
+                HashMap<String,Method> map = new HashMap<>();
+                for(Method m: metodos) {
+                    map.put(m.getName(),m);
+                }
+                if(params){
+                    response = (String) map.get(path[3]).invoke(clase.newInstance(), splited);
+                }
+                else{
+                    response = (String) map.get(path[3]).invoke(clase.newInstance());
+                }
+                System.out.println(response);
+                PrintStream responseWeb = new PrintStream(out);
+                DateFormat df = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss z");
+                responseWeb.println("HTTP/1.1 200 OK\r\n"+"Content-Type: text/html\r\n"+"\r\n");
+                if(params) {
+                    responseWeb.println("The Result of " + path[2] + "." + path[3] + "(" + path[4].replace("&", ",") + ") is: " + response);
+                }
+                else{
+                    responseWeb.println("The Result of " + path[2] + "." + path[3] + "() is: " + response);
+                }
+                responseWeb.flush();
+                responseWeb.close();
+            }catch (Exception ex){
+                notFound(out);
+            }
+
+        }
+        catch (ClassNotFoundException ex) {
+
+            notFound(out);
         }
     }
 
@@ -94,23 +145,28 @@ public class Server {
             response.println(htmlString);
 
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            try {
-                scanner = new Scanner( new File("src/main/resources/NOTFOUND.html"));
-                String htmlString = scanner.useDelimiter("\\Z").next();
-                scanner.close();
-                byte htmlBytes[] = htmlString.getBytes("UTF-8");
-                PrintStream response = new PrintStream(out);
-                DateFormat df = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss z");
-                response.println("HTTP/1.1 200 OK");
-                response.println("Content-Type: text/html; charset=UTF-8");
-                response.println("Date: " + df.format(new Date()));
-                response.println("Connection: close");
-                response.println();
-                response.println(htmlString);
-            } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-                ex.printStackTrace();
-            }
+            notFound(out);
 
+        }
+    }
+
+    private static void notFound(OutputStream out) {
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new File("src/main/resources/NOTFOUND.html"));
+            String htmlString = scanner.useDelimiter("\\Z").next();
+            scanner.close();
+            byte htmlBytes[] = htmlString.getBytes("UTF-8");
+            PrintStream response = new PrintStream(out);
+            DateFormat df = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss z");
+            response.println("HTTP/1.1 200 OK");
+            response.println("Content-Type: text/html; charset=UTF-8");
+            response.println("Date: " + df.format(new Date()));
+            response.println("Connection: close");
+            response.println();
+            response.println(htmlString);
+        } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -118,10 +174,10 @@ public class Server {
         try{
             PrintWriter response = new PrintWriter(outputStream, true);
             response.println("HTTP/1.1 200 OK");
-            response.println("Content-Type: image/png\r\n");
+            response.println("Content-Type: image/"+ext+"\r\n");
             BufferedImage image= ImageIO.read(new File("src/main/resources/"+path));
             ImageIO.write(image, ext, outputStream);
-        } catch (IOException e) {
+        } catch (IOException | ArrayIndexOutOfBoundsException e) {
             BufferedImage image= ImageIO.read(new File("src/main/resources/imagenes/error.png"));
             ImageIO.write(image, ext, outputStream);
         }
@@ -133,4 +189,5 @@ public class Server {
         }
         return 8080; //returns default port if heroku-port isn't set (i.e.on localhost)
     }
+
 }
