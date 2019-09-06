@@ -1,6 +1,7 @@
 package com.arep;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Method;
 import java.net.*;
@@ -169,10 +170,11 @@ public class Server {
     private static void serveImage(String path,OutputStream outputStream,String ext) throws IOException {
         PrintWriter response = new PrintWriter(outputStream, true);
         try{
-            response.println("HTTP/1.1 200 OK\r\n");
+            response.println("HTTP/1.1 200 OK");
             response.println("Content-Type: image/"+ext+"\r\n");
             BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/"+path));
-            ImageIO.write(image, ext, outputStream);
+
+            ImageIO.write(image, ext, new MemoryCacheImageOutputStream(outputStream));
             response.flush();
             response.close();
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
