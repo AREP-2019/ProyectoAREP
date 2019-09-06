@@ -5,6 +5,9 @@ This project was implemented through HTTP so it can server images, and html reso
 # Test
 
 ### Image:
+
+[Link](https://proyecto-arep.herokuapp.com/imagenes/class.png)
+
 [Link](https://proyecto-arep.herokuapp.com/imagenes/playa.png)
 
 ### Html:
