@@ -82,50 +82,50 @@ public class Server {
     }
 
     private static void serveApp(String[] path, OutputStream out) {
-        try {
-            Class clase = Class.forName("com.arep.apps."+path[2]);
-            Boolean params = true;
-            String response = null;
-            String[] splited = null;
+
+
             try {
-                if(path.length==5){
-                    splited = path[4].split("&");
+                Class clase = Class.forName("com.arep.apps."+path[2]);
+                Boolean params = true;
+                String response = null;
+                String[] splited = null;
+                try {
+                    if(path.length==5){
+                        splited = path[4].split("&");
+                    }
+                    else {
+                        params=false;
+                    }
+                    ArrayList<Method> metodos=new ArrayList<>(Arrays.asList(clase.getMethods()));
+                    HashMap<String,Method> map = new HashMap<>();
+                    for(Method m: metodos) {
+                        map.put(m.getName(),m);
+                    }
+                    if(params){
+                        response = (String) map.get(path[3]).invoke(clase.newInstance(), splited);
+                    }
+                    else{
+                        response = (String) map.get(path[3]).invoke(clase.newInstance());
+                    }
+                    System.out.println(response);
+                    PrintStream responseWeb = new PrintStream(out);
+                    DateFormat df = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss z");
+                    responseWeb.println("HTTP/1.1 200 OK\r\n"+"Content-Type: text/html\r\n"+"\r\n");
+                    if(params) {
+                        responseWeb.println("The Result of " + path[2] + "." + path[3] + "(" + path[4].replace("&", ",") + ") is: " + response);
+                    }
+                    else{
+                        responseWeb.println("The Result of " + path[2] + "." + path[3] + "() is: " + response);
+                    }
+                    responseWeb.flush();
+                    responseWeb.close();
+                }catch (Exception ex){
+                    notFound(out);
                 }
-                else {
-                    params=false;
-                }
-                ArrayList<Method> metodos=new ArrayList<>(Arrays.asList(clase.getMethods()));
-                HashMap<String,Method> map = new HashMap<>();
-                for(Method m: metodos) {
-                    map.put(m.getName(),m);
-                }
-                if(params){
-                    response = (String) map.get(path[3]).invoke(clase.newInstance(), splited);
-                }
-                else{
-                    response = (String) map.get(path[3]).invoke(clase.newInstance());
-                }
-                System.out.println(response);
-                PrintStream responseWeb = new PrintStream(out);
-                DateFormat df = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss z");
-                responseWeb.println("HTTP/1.1 200 OK\r\n"+"Content-Type: text/html\r\n"+"\r\n");
-                if(params) {
-                    responseWeb.println("The Result of " + path[2] + "." + path[3] + "(" + path[4].replace("&", ",") + ") is: " + response);
-                }
-                else{
-                    responseWeb.println("The Result of " + path[2] + "." + path[3] + "() is: " + response);
-                }
-                responseWeb.flush();
-                responseWeb.close();
-            }catch (Exception ex){
+            } catch (Exception e) {
                 notFound(out);
             }
 
-        }
-        catch (ClassNotFoundException ex) {
-
-            notFound(out);
-        }
     }
 
     private static void serveHtml(String path, OutputStream out) {
@@ -136,11 +136,7 @@ public class Server {
             scanner.close();
             byte htmlBytes[] = htmlString.getBytes("UTF-8");
             PrintStream response = new PrintStream(out);
-            DateFormat df = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss z");
-            response.println("HTTP/1.1 200 OK");
-            response.println("Content-Type: text/html; charset=UTF-8");
-            response.println("Date: " + df.format(new Date()));
-            response.println("Connection: close");
+            response.println("HTTP/1.1 200 OK\r\n"+"Content-Type: text/html\r\n"+"\r\n");
             response.println();
             response.println(htmlString);
             response.flush();
@@ -160,11 +156,7 @@ public class Server {
             scanner.close();
             byte htmlBytes[] = htmlString.getBytes("UTF-8");
             PrintStream response = new PrintStream(out);
-            DateFormat df = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss z");
-            response.println("HTTP/1.1 200 OK");
-            response.println("Content-Type: text/html; charset=UTF-8");
-            response.println("Date: " + df.format(new Date()));
-            response.println("Connection: close");
+            response.println("HTTP/1.1 200 OK\r\n"+"Content-Type: text/html\r\n"+"\r\n");
             response.println();
             response.println(htmlString);
             response.flush();
@@ -190,6 +182,7 @@ public class Server {
             response.close();
         }
     }
+
 
     static int getPort() {
         if (System.getenv("PORT") != null) {
