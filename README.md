@@ -4,13 +4,13 @@ This project was implemented through HTTP so it can server images, and html reso
 
 # Test
 
-###Image:
-[Link](https://proyecto-arep.herokuapp.com/images/playa.png)
+### Image:
+[Link](https://proyecto-arep.herokuapp.com/imagenes/playa.png)
 
-###Html:
+### Html:
 [Link](https://proyecto-arep.herokuapp.com/resultado.html)
 
-###Clase:
+### Clase:
 
 Example1:[Link](https://proyecto-arep.herokuapp.com/apps/Playa/write/this_is_a_test)
 
