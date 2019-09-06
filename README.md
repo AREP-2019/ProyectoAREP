@@ -2,6 +2,8 @@
 
 This project was implemented through HTTP so it can server images, and html resources inside the main resources folder, also i provides a framework to run classes (POJOS) inside com.arep.apps.
 
+#Architecture
+The architecture is pretty simple there is a single class that Serves when a HTTP get Request is made the resources from the resources folder, and uses reflexion to access the classes inside the package com.arep.apps and invoke their methods always returns 200 and shows NOT FOUND if not exists or some mismatch.
 # Test
 
 ### Image:
