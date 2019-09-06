@@ -56,6 +56,7 @@ public class Server {
         if(path!=null) {
             serve(path, out);
         }
+        out.close();
     }
 
     private static void serve(String path, OutputStream out) {
