@@ -34,8 +34,8 @@ public class Server {
             }
             ResolveRequest(clientSocket.getOutputStream());
 
-            clientSocket.close();
-            serverSocket.close();
+//            clientSocket.close();
+//            serverSocket.close();
         }
 
 
