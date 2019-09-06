@@ -131,7 +131,7 @@ public class Server {
     private static void serveHtml(String path, OutputStream out) {
         Scanner scanner = null;
         try {
-            scanner = new Scanner( new File("src/main/resources/"+path));
+            scanner = new Scanner( new File(System.getProperty("user.dir"),"src/main/resources/"+path));
             String htmlString = scanner.useDelimiter("\\Z").next();
             scanner.close();
             byte htmlBytes[] = htmlString.getBytes("UTF-8");
@@ -153,7 +153,7 @@ public class Server {
     private static void notFound(OutputStream out) {
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File("src/main/resources/NOTFOUND.html"));
+            scanner = new Scanner(new File(System.getProperty("user.dir"),"src/main/resources/NOTFOUND.html"));
             String htmlString = scanner.useDelimiter("\\Z").next();
             scanner.close();
             byte htmlBytes[] = htmlString.getBytes("UTF-8");
@@ -175,10 +175,10 @@ public class Server {
             PrintWriter response = new PrintWriter(outputStream, true);
             response.println("HTTP/1.1 200 OK");
             response.println("Content-Type: image/"+ext+"\r\n");
-            BufferedImage image= ImageIO.read(new File("src/main/resources/"+path));
+            BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/"+path));
             ImageIO.write(image, ext, outputStream);
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
-            BufferedImage image= ImageIO.read(new File("src/main/resources/imagenes/error.png"));
+            BufferedImage image= ImageIO.read(new File(System.getProperty("user.dir"),"src/main/resources/imagenes/error.png"));
             ImageIO.write(image, ext, outputStream);
         }
     }
